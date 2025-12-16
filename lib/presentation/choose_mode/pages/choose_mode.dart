@@ -5,7 +5,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:spotify_app/common/widgets/button/basic_app_button.dart';
 import 'package:spotify_app/core/config/assets/app_images.dart';
 import 'package:spotify_app/core/config/assets/app_vectors.dart';
-import 'package:spotify_app/core/config/theme/app_colors.dart';
 
 class ChooseModePage extends StatelessWidget {
   const ChooseModePage({super.key});
