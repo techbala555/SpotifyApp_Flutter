@@ -63,7 +63,7 @@ class GetStratedPage extends StatelessWidget {
                     );
                   },
                   title: "Get Started",
-                  height: 60,
+                  height: 80,
                 ),
                 SizedBox(height: 20),
               ],
