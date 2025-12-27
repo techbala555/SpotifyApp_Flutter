@@ -14,130 +14,152 @@ class ChooseModePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isWideScreen = size.width > 600; 
+
     return Scaffold(
       body: Stack(
         children: [
+          // ================= BACKGROUND IMAGE =================
           Container(
-            padding: EdgeInsets.symmetric(vertical: 40, horizontal: 40),
             decoration: BoxDecoration(
               image: DecorationImage(
-                fit: BoxFit.fill,
+                fit: BoxFit.contain,
                 image: AssetImage(AppImages.choosemodebg),
               ),
             ),
           ),
 
-          Container(color: Colors.black.withOpacity(0.15)),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 40, horizontal: 40),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: SvgPicture.asset(AppVectors.logo),
+          // ================= DARK OVERLAY =================
+          Container(color: Colors.black.withOpacity(0.25)),
+
+          // ================= CONTENT =================
+          SafeArea(
+            child: Center(
+              child: Container(
+                width: isWideScreen ? 500 : double.infinity, // responsive width
+                padding: EdgeInsets.symmetric(
+                  horizontal: isWideScreen ? 40 : 30,
+                  vertical: 30,
                 ),
-                Spacer(),
-                Text(
-                  "Choose Mode",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                ),
-                SizedBox(height: 21),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Column(
+                    // ================= LOGO =================
+                    SvgPicture.asset(
+                      AppVectors.logo,
+                      height: 40,
+                    ),
+
+                    const Spacer(),
+
+                    // ================= TITLE =================
+                    const Text(
+                      "Choose Mode",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // ================= MODE OPTIONS =================
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GestureDetector(
+                        _modeItem(
+                          context,
+                          icon: AppVectors.sun,
+                          label: "Light Mode",
                           onTap: () {
-                            context.read<ThemeCubit>().updateTheme(
-                              ThemeMode.light,
-                            );
+                            context
+                                .read<ThemeCubit>()
+                                .updateTheme(ThemeMode.light);
                           },
-                          child: ClipOval(
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  color: Color(0xff30393c).withOpacity(0.5),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: SvgPicture.asset(
-                                  AppVectors.sun,
-                                  fit: BoxFit.none,
-                                ),
-                              ),
-                            ),
-                          ),
                         ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Light Mode",
-                          style: TextStyle(fontSize: 17, color: AppColors.grey),
+                        const SizedBox(width: 40),
+                        _modeItem(
+                          context,
+                          icon: AppVectors.moon,
+                          label: "Dark Mode",
+                          onTap: () {
+                            context
+                                .read<ThemeCubit>()
+                                .updateTheme(ThemeMode.dark);
+                          },
                         ),
                       ],
                     ),
-                    SizedBox(width: 40),
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            context.read<ThemeCubit>().updateTheme(
-                              ThemeMode.dark,
-                            );
-                          },
-                          child: ClipOval(
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                  color: Color(0xff30393c).withOpacity(0.5),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: SvgPicture.asset(
-                                  AppVectors.moon,
-                                  fit: BoxFit.none,
-                                ),
-                              ),
-                            ),
+
+                    const SizedBox(height: 80),
+
+                    // ================= CONTINUE BUTTON =================
+                    BasicAppButton(
+                      title: "Continue",
+                      height: 70,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SignupOrSiginin(),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Dark Mode",
-                          style: TextStyle(fontSize: 17, color: AppColors.grey),
-                        ),
-                      ],
+                        );
+                      },
                     ),
+
+                    const SizedBox(height: 20),
                   ],
                 ),
-
-                SizedBox(height: 80),
-                BasicAppButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) =>const SignupOrSiginin(),
-                      ),
-                    );
-                  },
-                  title: "Continue",
-                  height: 80,
-                ),
-                SizedBox(height: 20),
-              ],
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  // ================= MODE ITEM =================
+
+  Widget _modeItem(
+    BuildContext context, {
+    required String icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: ClipOval(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: const Color(0xff30393c).withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: SvgPicture.asset(
+                  icon,
+                  fit: BoxFit.none,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            color: AppColors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -7,18 +7,31 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.lightBackground,
     brightness: Brightness.light,
     fontFamily: "Satoshi",
+    snackBarTheme: const SnackBarThemeData(
+      backgroundColor: Colors.black,
+      contentTextStyle: TextStyle(color: Colors.white),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.transparent,
-      hintStyle: TextStyle(color:Color(0XFF383838),fontWeight: FontWeight.w500),
+      hintStyle: TextStyle(
+        color: Color(0XFF383838),
+        fontWeight: FontWeight.w500,
+      ),
       contentPadding: const EdgeInsets.all(30),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 0.4),
+        borderSide: BorderSide(
+          color: const Color.fromARGB(255, 0, 0, 0),
+          width: 0.4,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 0.4),
+        borderSide: BorderSide(
+          color: const Color.fromARGB(255, 0, 0, 0),
+          width: 0.4,
+        ),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -36,18 +49,31 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.darkBackground,
     brightness: Brightness.dark,
     fontFamily: "Satoshi",
+    snackBarTheme: const SnackBarThemeData(
+      backgroundColor: Colors.white,
+      contentTextStyle: TextStyle(color: Colors.black),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.transparent,
-      hintStyle: TextStyle(color:Color(0XFFA7A7A7),fontWeight: FontWeight.w500),
+      hintStyle: TextStyle(
+        color: Color(0XFFA7A7A7),
+        fontWeight: FontWeight.w500,
+      ),
       contentPadding: const EdgeInsets.all(30),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide(color: const Color.fromARGB(255, 255, 255, 255), width: 0.4),
+        borderSide: BorderSide(
+          color: const Color.fromARGB(255, 255, 255, 255),
+          width: 0.4,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide(color: const Color.fromARGB(255, 255, 255, 255), width: 0.4),
+        borderSide: BorderSide(
+          color: const Color.fromARGB(255, 255, 255, 255),
+          width: 0.4,
+        ),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(

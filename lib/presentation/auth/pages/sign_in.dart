@@ -3,7 +3,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:spotify_app/common/widgets/button/appbar/app_bar.dart';
 import 'package:spotify_app/common/widgets/button/basic_app_button.dart';
 import 'package:spotify_app/core/config/assets/app_vectors.dart';
+import 'package:spotify_app/data/models/auth/signin_user_req.dart';
+import 'package:spotify_app/domain/usecases/auth/signin.dart';
 import 'package:spotify_app/presentation/auth/pages/sign_up.dart';
+import 'package:spotify_app/presentation/root/pages/root.dart';
+import 'package:spotify_app/service_locator.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -15,19 +19,22 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   final _formKey = GlobalKey<FormState>();
 
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _email.dispose();
+    _password.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final isWideScreen = size.width > 600; 
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -41,31 +48,38 @@ class _SignInState extends State<SignIn> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: size.height * 0.75,
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _signinText(),
-                  const SizedBox(height: 40),
+          child: Center(
+            child: Container(
+              width: isWideScreen ? 420 : double.infinity, 
+              padding: EdgeInsets.symmetric(
+                horizontal: isWideScreen ? 40 : 30,
+                vertical: 30,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _signinText(),
+                    SizedBox(height: size.height * 0.05),
 
-                  _emailField(context),
-                  const SizedBox(height: 20),
+                    _emailField(context),
+                    SizedBox(height: size.height * 0.025),
 
-                  _passwordField(context),
-                  const SizedBox(height: 30),
+                    _passwordField(context),
+                    SizedBox(height: size.height * 0.04),
 
-                  BasicAppButton(
-                    onPressed: _onSignIn,
-                    title: "Sign In",
-                  ),
-                ],
+                    BasicAppButton(
+                      title: _isLoading ? "Signing In..." : "Sign In",
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              _onSignIn();
+                            },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -74,16 +88,55 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  // ================= TEXT =================
+  // ================= ACTION =================
+
+  Future<void> _onSignIn() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final result = await sl<SigninUseCase>().call(
+      params: SigninUserReq(
+        email: _email.text.trim(),
+        password: _password.text,
+      ),
+    );
+
+    setState(() => _isLoading = false);
+
+    result.fold(
+      (l) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.redAccent,
+            content: Text(
+              l,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      },
+      (r) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => RootPage()),
+          (route) => false,
+        );
+      },
+    );
+  }
+
+  // ================= TITLE =================
 
   Widget _signinText() {
     return const Text(
       "Sign In",
+      textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 26,
         fontWeight: FontWeight.bold,
       ),
-      textAlign: TextAlign.center,
     );
   }
 
@@ -91,18 +144,17 @@ class _SignInState extends State<SignIn> {
 
   Widget _emailField(BuildContext context) {
     return TextFormField(
-      controller: _emailController,
+      controller: _email,
       keyboardType: TextInputType.emailAddress,
       decoration: const InputDecoration(
-        hintText: "Username or Email",
+        hintText: "Email",
       ).applyDefaults(Theme.of(context).inputDecorationTheme),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return "Email or username is required";
+          return "Email is required";
         }
-        if (value.contains('@') &&
-            !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                .hasMatch(value)) {
+        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+            .hasMatch(value.trim())) {
           return "Enter a valid email";
         }
         return null;
@@ -114,7 +166,7 @@ class _SignInState extends State<SignIn> {
 
   Widget _passwordField(BuildContext context) {
     return TextFormField(
-      controller: _passwordController,
+      controller: _password,
       obscureText: true,
       decoration: const InputDecoration(
         hintText: "Password",
@@ -131,21 +183,11 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  // ================= ACTION =================
-
-  void _onSignIn() {
-    if (_formKey.currentState!.validate()) {
-      // ✅ All validations passed
-      debugPrint("Email: ${_emailController.text}");
-      debugPrint("Password: ${_passwordController.text}");
-    }
-  }
-
   // ================= REGISTER =================
 
   Widget _registerText(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 30),
+      padding: const EdgeInsets.symmetric(vertical: 40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -155,7 +197,10 @@ class _SignInState extends State<SignIn> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => SignUp()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SignUp()),
+              );
             },
             child: const Text("Register Now"),
           ),
